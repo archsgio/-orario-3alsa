@@ -79,6 +79,8 @@
     .subject{font-size:17px;font-weight:800;line-height:1.15;letter-spacing:-.01em;overflow-wrap:anywhere}
     .pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
     .pill{padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--muted);font-size:11px;font-weight:650}
+    .pill.exit{border-color:var(--accent);background:var(--accent2);color:var(--text);font-weight:800}
+    #dayView{touch-action:pan-y}
     .weekDay{border:1px solid var(--line);background:var(--surface2);border-radius:22px;padding:12px}
     .weekTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 2px 9px;font-weight:850}
     .weekTitle span{font-size:12px;color:var(--muted)}
@@ -147,14 +149,14 @@
 (() => {
   "use strict";
   const schedule = {
-    mon:{label:"Lunedì",short:"LUN",entries:[
+    mon:{label:"Lunedì",short:"LUN",exit:"16:00",entries:[
       {t:"8:00",s:"Scienze naturali",r:"B06",m:1,c:"#2e90fa"},
       {t:"8:45",s:"Inglese",r:"B06",m:1,c:"#7f56d9"},
       {t:"9:45",s:"Storia",r:"B06",m:1,c:"#f79009"},
       {t:"10:45",s:"Italiano",r:"B06",m:2,c:"#ee46bc"},
       {t:"14:00",s:"Scienze motorie",r:"Palestra",m:2,n:"4BS",c:"#12b76a"}
     ]},
-    tue:{label:"Martedì",short:"MAR",entries:[
+    tue:{label:"Martedì",short:"MAR",exit:"13:30",entries:[
       {t:"7:55",s:"Religione",r:"B06",m:1,c:"#6172f3"},
       {t:"8:45",s:"Italiano",r:"B06",m:1,c:"#ee46bc"},
       {t:"9:45",s:"Matematica",r:"B06",m:1,c:"#2e90fa"},
@@ -162,20 +164,20 @@
       {t:"11:45",s:"Scienze naturali",r:"B06",m:1,c:"#12b76a"},
       {t:"12:45",s:"Inglese",r:"B06",m:1,c:"#7f56d9"}
     ]},
-    wed:{label:"Mercoledì",short:"MER",entries:[
+    wed:{label:"Mercoledì",short:"MER",exit:"13:30",entries:[
       {t:"7:55",s:"Matematica",r:"B06",m:2,c:"#2e90fa"},
       {t:"9:45",s:"Storia dell’arte",r:"B06",m:1,c:"#f79009"},
       {t:"10:45",s:"Informatica",r:"B06",m:2,c:"#6172f3"},
       {t:"12:45",s:"Potenziamento Informatica",r:"B06",m:1,n:"Herzen",c:"#6172f3"}
     ]},
-    thu:{label:"Giovedì",short:"GIO",entries:[
+    thu:{label:"Giovedì",short:"GIO",exit:"13:30",entries:[
       {t:"7:55",s:"Filosofia",r:"B06",m:1,c:"#7f56d9"},
       {t:"8:45",s:"Fisica",r:"B06",m:1,c:"#f04438"},
       {t:"9:45",s:"Scienze naturali",r:"B06",m:2,c:"#12b76a"},
       {t:"11:45",s:"Fisica",r:"B06",m:1,c:"#f04438"},
       {t:"12:45",s:"Storia",r:"B06",m:1,c:"#f79009"}
     ]},
-    fri:{label:"Venerdì",short:"VEN",entries:[
+    fri:{label:"Venerdì",short:"VEN",exit:"13:30",entries:[
       {t:"7:55",s:"Italiano",r:"B06",m:1,c:"#ee46bc"},
       {t:"8:45",s:"Fisica",r:"B06",m:1,c:"#f04438"},
       {t:"9:45",s:"Inglese",r:"B06",m:1,c:"#7f56d9"},
@@ -196,14 +198,15 @@
   const modules = key => schedule[key].entries.reduce((sum,e)=>sum+(e.m||1),0);
   const minutes = t => { const [h,m]=t.split(":").map(Number); return h*60+m; };
 
-  function lessonHTML(e){
+  function lessonHTML(e, isLast=false, exitTime=""){
     const extra = e.n ? `<span class="pill">${esc(e.n)}</span>` : "";
     const multi = e.m > 1 ? `<span class="pill">${e.m} moduli</span>` : "";
+    const exit = isLast && exitTime ? `<span class="pill exit">Uscita ${esc(exitTime)}</span>` : "";
     return `<article class="lesson">
       <div><div class="time">${esc(e.t)}</div><div class="bar" style="--c:${esc(e.c)}"></div></div>
       <div>
         <div class="subject">${esc(e.s)}</div>
-        <div class="pills"><span class="pill">${esc(e.r)}</span>${multi}${extra}</div>
+        <div class="pills"><span class="pill">${esc(e.r)}</span>${multi}${extra}${exit}</div>
       </div>
     </article>`;
   }
@@ -243,16 +246,40 @@
     const d = schedule[selected];
     $("dayTitle").textContent = d.label;
     $("dayMeta").innerHTML = `${modules(selected)} moduli<br>prima lezione <strong>${esc(d.entries[0].t)}</strong>`;
-    $("lessonList").innerHTML = d.entries.map(lessonHTML).join("");
+    $("lessonList").innerHTML = d.entries.map((e,i) => lessonHTML(e, i === d.entries.length-1, d.exit)).join("");
   }
 
   function renderWeek(){
     $("weekList").innerHTML = order.map(k => {
       const d = schedule[k];
       return `<section class="weekDay"><div class="weekTitle"><strong>${d.label}</strong><span>${modules(k)} moduli</span></div>
-        <div class="list">${d.entries.map(lessonHTML).join("")}</div></section>`;
+        <div class="list">${d.entries.map((e,i) => lessonHTML(e, i === d.entries.length-1, d.exit)).join("")}</div></section>`;
     }).join("");
   }
+
+  function moveDay(delta){
+    const current = order.indexOf(selected);
+    const next = current + delta;
+    if(next < 0 || next >= order.length) return;
+    selected = order[next];
+    mode = "day";
+    render();
+  }
+
+  let swipeStartX = 0;
+  let swipeStartY = 0;
+  $("dayView").addEventListener("touchstart", event => {
+    const touch = event.changedTouches[0];
+    swipeStartX = touch.clientX;
+    swipeStartY = touch.clientY;
+  }, {passive:true});
+  $("dayView").addEventListener("touchend", event => {
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - swipeStartX;
+    const dy = touch.clientY - swipeStartY;
+    if(Math.abs(dx) < 50 || Math.abs(dx) <= Math.abs(dy) * 1.2) return;
+    moveDay(dx < 0 ? 1 : -1);
+  }, {passive:true});
 
   function renderMode(){
     $("dayView").classList.toggle("hidden", mode !== "day");
