@@ -51,6 +51,8 @@
     .time{font-weight:850;font-variant-numeric:tabular-nums;text-align:center;font-size:15px}.bar{width:38px;height:4px;border-radius:999px;margin:7px auto 0;background:var(--c,var(--accent))}
     .subject{font-size:17px;font-weight:800;line-height:1.15;letter-spacing:-.01em;overflow-wrap:anywhere}.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
     .pill{padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--muted);font-size:11px;font-weight:650}.pill.exit{border-color:var(--accent);background:var(--accent2);color:var(--text);font-weight:800}
+    .breakRow{display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:8px 12px;border:1px dashed var(--line);border-radius:16px;background:var(--surface2);color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.01em}
+    .breakRow .breakLabel{color:var(--text)}.breakRow .breakTime{font-variant-numeric:tabular-nums}
 
     /* Pager orizzontale: tutta la scheda del giorno segue il dito */
     .dayPagerViewport{overflow:hidden;touch-action:pan-y;overscroll-behavior-x:contain;transition:height .26s ease}
@@ -105,116 +107,56 @@
     mon:{label:"Lunedì",short:"LUN",exit:"16:00",entries:[
       {t:"8:00",s:"Scienze naturali",r:"B06",m:1,c:"#2e90fa"},
       {t:"8:45",s:"Inglese",r:"B06",m:1,c:"#7f56d9"},
-      {t:"9:45",s:"Storia",r:"B06",m:1,c:"#f79009"},
-      {t:"10:45",s:"Italiano",r:"B06",m:2,c:"#ee46bc"},
+      {t:"9:45",s:"Storia",r:"B06",m:1,c:"#f79009",breakAfter:true},
+      {t:"10:50",s:"Italiano",r:"B06",m:2,c:"#ee46bc"},
       {t:"14:00",s:"Scienze motorie",r:"Palestra",m:2,n:"4BS",c:"#12b76a"}
     ]},
     tue:{label:"Martedì",short:"MAR",exit:"13:30",entries:[
       {t:"7:55",s:"Religione",r:"B06",m:1,c:"#6172f3"},
       {t:"8:45",s:"Italiano",r:"B06",m:1,c:"#ee46bc"},
-      {t:"9:45",s:"Matematica",r:"B06",m:1,c:"#2e90fa"},
-      {t:"10:45",s:"Storia dell’arte",r:"B06",m:1,c:"#f79009"},
+      {t:"9:45",s:"Matematica",r:"B06",m:1,c:"#2e90fa",breakAfter:true},
+      {t:"10:50",s:"Storia dell’arte",r:"B06",m:1,c:"#f79009"},
       {t:"11:45",s:"Scienze naturali",r:"B06",m:1,c:"#12b76a"},
       {t:"12:45",s:"Inglese",r:"B06",m:1,c:"#7f56d9"}
     ]},
     wed:{label:"Mercoledì",short:"MER",exit:"13:30",entries:[
       {t:"7:55",s:"Matematica",r:"B06",m:2,c:"#2e90fa"},
-      {t:"9:45",s:"Storia dell’arte",r:"B06",m:1,c:"#f79009"},
-      {t:"10:45",s:"Informatica",r:"B06",m:2,c:"#6172f3"},
+      {t:"9:45",s:"Storia dell’arte",r:"B06",m:1,c:"#f79009",breakAfter:true},
+      {t:"10:50",s:"Informatica",r:"B06",m:2,c:"#6172f3"},
       {t:"12:45",s:"Potenziamento Informatica",r:"B06",m:1,n:"Herzen",c:"#6172f3"}
     ]},
     thu:{label:"Giovedì",short:"GIO",exit:"13:30",entries:[
       {t:"7:55",s:"Filosofia",r:"B06",m:1,c:"#7f56d9"},
       {t:"8:45",s:"Fisica",r:"B06",m:1,c:"#f04438"},
-      {t:"9:45",s:"Scienze naturali",r:"B06",m:2,c:"#12b76a"},
+      {t:"9:45",s:"Scienze naturali",r:"B06",m:1,c:"#12b76a",breakAfter:true},
+      {t:"10:50",s:"Scienze naturali",r:"B06",m:1,c:"#12b76a"},
       {t:"11:45",s:"Fisica",r:"B06",m:1,c:"#f04438"},
       {t:"12:45",s:"Storia",r:"B06",m:1,c:"#f79009"}
     ]},
     fri:{label:"Venerdì",short:"VEN",exit:"13:30",entries:[
       {t:"7:55",s:"Italiano",r:"B06",m:1,c:"#ee46bc"},
       {t:"8:45",s:"Fisica",r:"B06",m:1,c:"#f04438"},
-      {t:"9:45",s:"Inglese",r:"B06",m:1,c:"#7f56d9"},
-      {t:"10:45",s:"Matematica",r:"B06",m:1,c:"#2e90fa"},
+      {t:"9:45",s:"Inglese",r:"B06",m:1,c:"#7f56d9",breakAfter:true},
+      {t:"10:50",s:"Matematica",r:"B06",m:1,c:"#2e90fa"},
       {t:"11:45",s:"Filosofia",r:"B06",m:1,c:"#7f56d9"},
       {t:"12:45",s:"Scienze naturali",r:"B06",m:1,c:"#12b76a"}
     ]}
   };
-
-  const order=["mon","tue","wed","thu","fri"];
-  const jsDay={1:"mon",2:"tue",3:"wed",4:"thu",5:"fri"};
-  const validFrom=new Date(2026,9,5,0,0,0,0);
+  const order=["mon","tue","wed","thu","fri"],jsDay={1:"mon",2:"tue",3:"wed",4:"thu",5:"fri"},validFrom=new Date(2026,9,5,0,0,0,0);
   const initialKey=(new Date()>=validFrom && jsDay[new Date().getDay()])?jsDay[new Date().getDay()]:"mon";
-  let selectedIndex=order.indexOf(initialKey);
-  let selected=order[selectedIndex];
-  let mode="day";
-
-  const $=id=>document.getElementById(id);
-  const esc=value=>String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
-  const modules=key=>schedule[key].entries.reduce((sum,e)=>sum+(e.m||1),0);
-  const minutes=t=>{const [h,m]=t.split(":").map(Number);return h*60+m};
-  const viewport=$("dayPagerViewport");
-  const track=$("dayPagerTrack");
-
-  function lessonHTML(e,isLast=false,exitTime=""){
-    const extra=e.n?`<span class="pill">${esc(e.n)}</span>`:"";
-    const multi=e.m>1?`<span class="pill">${e.m} moduli</span>`:"";
-    const exit=isLast&&exitTime?`<span class="pill exit">Uscita ${esc(exitTime)}</span>`:"";
-    return `<article class="lesson"><div><div class="time">${esc(e.t)}</div><div class="bar" style="--c:${esc(e.c)}"></div></div><div><div class="subject">${esc(e.s)}</div><div class="pills"><span class="pill">${esc(e.r)}</span>${multi}${extra}${exit}</div></div></article>`;
-  }
-
-  function dayPageHTML(key){
-    const d=schedule[key];
-    return `<article class="dayPage" data-page="${key}"><div class="dayPageInner"><div class="sectionHead"><h2>${esc(d.label)}</h2><div class="meta">${modules(key)} moduli<br>prima lezione <strong>${esc(d.entries[0].t)}</strong></div></div><div class="list">${d.entries.map((e,i)=>lessonHTML(e,i===d.entries.length-1,d.exit)).join("")}</div></div></article>`;
-  }
-
-  function renderPager(){
-    track.innerHTML=order.map(dayPageHTML).join("");
-  }
-
-  function renderWeek(){
-    $("weekList").innerHTML=order.map(k=>{
-      const d=schedule[k];
-      return `<section class="weekDay"><div class="weekTitle"><strong>${d.label}</strong><span>${modules(k)} moduli</span></div><div class="list">${d.entries.map((e,i)=>lessonHTML(e,i===d.entries.length-1,d.exit)).join("")}</div></section>`;
-    }).join("");
-  }
-
-  function renderTabs(){
-    $("tabs").innerHTML=order.map((k,i)=>`<button type="button" class="dayBtn ${i===selectedIndex?"active":""}" data-day-index="${i}" aria-pressed="${i===selectedIndex}"><span class="small">${schedule[k].short}</span><span>${modules(k)}</span></button>`).join("");
-    document.querySelectorAll("[data-day-index]").forEach(btn=>btn.addEventListener("click",()=>{
-      mode="day";
-      renderMode();
-      goToIndex(Number(btn.dataset.dayIndex),true);
-    }));
-  }
-
-  function updateTabs(scroll=true){
-    document.querySelectorAll("[data-day-index]").forEach((btn,i)=>{
-      const active=i===selectedIndex;
-      btn.classList.toggle("active",active);
-      btn.setAttribute("aria-pressed",active?"true":"false");
-      if(active&&scroll) btn.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
-    });
-  }
-
-  function renderStatus(){
-    const now=new Date();
-    const status=$("status");
-    if(now<validFrom){status.innerHTML=`<span class="statusDot"></span><div><div class="statusTitle">Pronto per lunedì 5 ottobre</div><div class="statusSub">L’orario entra in vigore il 5/10/2026.</div></div>`;return}
-    const todayKey=jsDay[now.getDay()];
-    if(!todayKey){status.innerHTML=`<span class="statusDot"></span><div><div class="statusTitle">Weekend</div><div class="statusSub">La prossima giornata scolastica è lunedì.</div></div>`;return}
-    const cur=now.getHours()*60+now.getMinutes();
-    const entries=schedule[todayKey].entries;
-    const next=entries.find(e=>minutes(e.t)>cur);
-    if(next){status.innerHTML=`<span class="statusDot"></span><div><div class="statusTitle">Prossimo inizio: ${esc(next.t)} · ${esc(next.s)}</div><div class="statusSub">${esc(next.r)}${next.m>1?" · "+next.m+" moduli":""}</div></div>`}
-    else{status.innerHTML=`<span class="statusDot"></span><div><div class="statusTitle">Lezioni di oggi concluse</div><div class="statusSub">Consulta il giorno successivo dai pulsanti sotto.</div></div>`}
-  }
-
+  let selectedIndex=order.indexOf(initialKey),selected=order[selectedIndex],mode="day";
+  const $=id=>document.getElementById(id),esc=value=>String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])),modules=key=>schedule[key].entries.reduce((sum,e)=>sum+(e.m||1),0),minutes=t=>{const [h,m]=t.split(":").map(Number);return h*60+m},viewport=$("dayPagerViewport"),track=$("dayPagerTrack");
+  function lessonHTML(e,isLast=false,exitTime=""){const extra=e.n?`<span class="pill">${esc(e.n)}</span>`:"",multi=e.m>1?`<span class="pill">${e.m} moduli</span>`:"",exit=isLast&&exitTime?`<span class="pill exit">Uscita ${esc(exitTime)}</span>`:"";return `<article class="lesson"><div><div class="time">${esc(e.t)}</div><div class="bar" style="--c:${esc(e.c)}"></div></div><div><div class="subject">${esc(e.s)}</div><div class="pills"><span class="pill">${esc(e.r)}</span>${multi}${extra}${exit}</div></div></article>`}
+  function breakHTML(){return `<div class="breakRow" role="note" aria-label="Intervallo dalle 10:40 alle 10:50"><span class="breakLabel">Intervallo</span><span class="breakTime">10:40–10:50</span></div>`}
+  function dayEntriesHTML(d){return d.entries.map((e,i)=>{const lesson=lessonHTML(e,i===d.entries.length-1,d.exit);return lesson+(e.breakAfter?breakHTML():"")}).join("")}
+  function dayPageHTML(key){const d=schedule[key];return `<article class="dayPage" data-page="${key}"><div class="dayPageInner"><div class="sectionHead"><h2>${esc(d.label)}</h2><div class="meta">${modules(key)} moduli<br>prima lezione <strong>${esc(d.entries[0].t)}</strong></div></div><div class="list">${dayEntriesHTML(d)}</div></div></article>`}
+  function renderPager(){track.innerHTML=order.map(dayPageHTML).join("")}
+  function renderWeek(){$("weekList").innerHTML=order.map(k=>{const d=schedule[k];return `<section class="weekDay"><div class="weekTitle"><strong>${d.label}</strong><span>${modules(k)} moduli</span></div><div class="list">${dayEntriesHTML(d)}</div></section>`}).join("")}
+  function renderTabs(){$("tabs").innerHTML=order.map((k,i)=>`<button type="button" class="dayBtn ${i===selectedIndex?"active":""}" data-day-index="${i}" aria-pressed="${i===selectedIndex}"><span class="small">${schedule[k].short}</span><span>${modules(k)}</span></button>`).join("");document.querySelectorAll("[data-day-index]").forEach(btn=>btn.addEventListener("click",()=>{mode="day";renderMode();goToIndex(Number(btn.dataset.dayIndex),true)}))}
+  function updateTabs(scroll=true){document.querySelectorAll("[data-day-index]").forEach((btn,i)=>{const active=i===selectedIndex;btn.classList.toggle("active",active);btn.setAttribute("aria-pressed",active?"true":"false");if(active&&scroll)btn.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"})})}
+  function renderStatus(){const now=new Date(),status=$("status");if(now<validFrom){status.innerHTML=`<span class="statusDot"></span><div><div class="statusTitle">Pronto per lunedì 5 ottobre</div><div class="statusSub">L’orario entra in vigore il 5/10/2026.</div></div>`;return}const todayKey=jsDay[now.getDay()];if(!todayKey){status.innerHTML=`<span class="statusDot"></span><div><div class="statusTitle">Weekend</div><div class="statusSub">La prossima giornata scolastica è lunedì.</div></div>`;return}const cur=now.getHours()*60+now.getMinutes(),entries=schedule[todayKey].entries,next=entries.find(e=>minutes(e.t)>cur);if(next)status.innerHTML=`<span class="statusDot"></span><div><div class="statusTitle">Prossimo inizio: ${esc(next.t)} · ${esc(next.s)}</div><div class="statusSub">${esc(next.r)}${next.m>1?" · "+next.m+" moduli":""}</div></div>`;else status.innerHTML=`<span class="statusDot"></span><div><div class="statusTitle">Lezioni di oggi concluse</div><div class="statusSub">Consulta il giorno successivo dai pulsanti sotto.</div></div>`}
   function pagerWidth(){return Math.max(1,viewport.clientWidth)}
-  function setTrackPosition(dragX=0,animate=false){
-    track.classList.toggle("animating",animate);
-    const x=-(selectedIndex*pagerWidth())+dragX;
-    track.style.transform=`translate3d(${x}px,0,0)`;
-  }
+  function setTrackPosition(dragX=0,animate=false){track.classList.toggle("animating",animate);track.style.transform=`translate3d(${-(selectedIndex*pagerWidth())+dragX}px,0,0)`}
   function adjustPagerHeight(){
     const page=track.children[selectedIndex];
     if(!page)return;
@@ -238,88 +180,21 @@
     setTrackPosition(0,animate);
     schedulePagerHeightUpdate();
   }
-
-  function renderMode(){
-    $("dayView").classList.toggle("hidden",mode!=="day");
-    $("weekView").classList.toggle("hidden",mode!=="week");
-    $("dayViewBtn").classList.toggle("active",mode==="day");
-    $("weekViewBtn").classList.toggle("active",mode==="week");
-    $("dayViewBtn").setAttribute("aria-pressed",mode==="day"?"true":"false");
-    $("weekViewBtn").setAttribute("aria-pressed",mode==="week"?"true":"false");
-    if(mode==="day") requestAnimationFrame(()=>{adjustPagerHeight();setTrackPosition(0,false);schedulePagerHeightUpdate()});
-  }
-
-  // Drag reale: il pannello corrente segue il dito e quello adiacente entra dal bordo.
-  let pointerId=null,startX=0,startY=0,lastX=0,lastTime=0,startTime=0,axis=null,dragX=0,velocityX=0;
+  function renderMode(){$("dayView").classList.toggle("hidden",mode!=="day");$("weekView").classList.toggle("hidden",mode!=="week");$("dayViewBtn").classList.toggle("active",mode==="day");$("weekViewBtn").classList.toggle("active",mode==="week");$("dayViewBtn").setAttribute("aria-pressed",mode==="day"?"true":"false");$("weekViewBtn").setAttribute("aria-pressed",mode==="week"?"true":"false");if(mode==="day")requestAnimationFrame(()=>{adjustPagerHeight();setTrackPosition(0,false);schedulePagerHeightUpdate()})}
+  let pointerId=null,startX=0,startY=0,lastX=0,lastTime=0,axis=null,dragX=0,velocityX=0;
   function resetDrag(){pointerId=null;axis=null;dragX=0;velocityX=0}
-  viewport.addEventListener("pointerdown",event=>{
-    if(mode!=="day"||(event.pointerType==="mouse"&&event.button!==0))return;
-    pointerId=event.pointerId;startX=lastX=event.clientX;startY=event.clientY;startTime=lastTime=performance.now();axis=null;dragX=0;velocityX=0;
-    track.classList.remove("animating");
-  });
-  viewport.addEventListener("pointermove",event=>{
-    if(event.pointerId!==pointerId)return;
-    const dx=event.clientX-startX,dy=event.clientY-startY;
-    if(!axis){
-      if(Math.max(Math.abs(dx),Math.abs(dy))<7)return;
-      axis=Math.abs(dx)>Math.abs(dy)?"x":"y";
-      if(axis==="x"&&viewport.setPointerCapture){try{viewport.setPointerCapture(pointerId)}catch(_){}}
-    }
-    if(axis!=="x")return;
-    event.preventDefault();
-    const now=performance.now(),dt=Math.max(1,now-lastTime);
-    velocityX=(event.clientX-lastX)/dt;lastX=event.clientX;lastTime=now;
-    dragX=dx;
-    const pullingPastStart=selectedIndex===0&&dragX>0;
-    const pullingPastEnd=selectedIndex===order.length-1&&dragX<0;
-    const visualDrag=(pullingPastStart||pullingPastEnd)?dragX*.28:dragX;
-    setTrackPosition(visualDrag,false);
-  },{passive:false});
-  function finishDrag(event){
-    if(event.pointerId!==pointerId)return;
-    if(axis!=="x"){resetDrag();return}
-    const dx=event.clientX-startX;
-    const width=pagerWidth();
-    const threshold=Math.min(110,Math.max(52,width*.20));
-    const fast=Math.abs(velocityX)>.45&&Math.abs(dx)>24;
-    const direction=dx<0?1:-1;
-    const canMove=(direction===1&&selectedIndex<order.length-1)||(direction===-1&&selectedIndex>0);
-    if(canMove&&(Math.abs(dx)>=threshold||fast)) goToIndex(selectedIndex+direction,true);
-    else setTrackPosition(0,true);
-    resetDrag();
-  }
-  viewport.addEventListener("pointerup",finishDrag);
-  viewport.addEventListener("pointercancel",event=>{if(event.pointerId===pointerId){setTrackPosition(0,true);resetDrag()}});
-  track.addEventListener("transitionend",event=>{if(event.propertyName==="transform")schedulePagerHeightUpdate()});
-
-  $("dayViewBtn").addEventListener("click",()=>{mode="day";renderMode()});
-  $("weekViewBtn").addEventListener("click",()=>{mode="week";renderMode()});
-  $("todayBtn").addEventListener("click",()=>{
-    const now=new Date();
-    const key=(now>=validFrom&&jsDay[now.getDay()])?jsDay[now.getDay()]:"mon";
-    mode="day";renderMode();goToIndex(order.indexOf(key),true);
-  });
-  window.addEventListener("resize",()=>{if(mode==="day"){track.classList.remove("animating");adjustPagerHeight();setTrackPosition(0,false);schedulePagerHeightUpdate()}});
+  viewport.addEventListener("pointerdown",event=>{if(mode!=="day"||(event.pointerType==="mouse"&&event.button!==0))return;pointerId=event.pointerId;startX=lastX=event.clientX;startY=event.clientY;lastTime=performance.now();axis=null;dragX=0;velocityX=0;track.classList.remove("animating")});
+  viewport.addEventListener("pointermove",event=>{if(event.pointerId!==pointerId)return;const dx=event.clientX-startX,dy=event.clientY-startY;if(!axis){if(Math.max(Math.abs(dx),Math.abs(dy))<7)return;axis=Math.abs(dx)>Math.abs(dy)?"x":"y";if(axis==="x"&&viewport.setPointerCapture){try{viewport.setPointerCapture(pointerId)}catch(_){}}}if(axis!=="x")return;event.preventDefault();const now=performance.now(),dt=Math.max(1,now-lastTime);velocityX=(event.clientX-lastX)/dt;lastX=event.clientX;lastTime=now;dragX=dx;const pastStart=selectedIndex===0&&dragX>0,pastEnd=selectedIndex===order.length-1&&dragX<0;setTrackPosition((pastStart||pastEnd)?dragX*.28:dragX,false)},{passive:false});
+  function finishDrag(event){if(event.pointerId!==pointerId)return;if(axis!=="x"){resetDrag();return}const dx=event.clientX-startX,width=pagerWidth(),threshold=Math.min(110,Math.max(52,width*.20)),fast=Math.abs(velocityX)>.45&&Math.abs(dx)>24,direction=dx<0?1:-1,canMove=(direction===1&&selectedIndex<order.length-1)||(direction===-1&&selectedIndex>0);if(canMove&&(Math.abs(dx)>=threshold||fast))goToIndex(selectedIndex+direction,true);else setTrackPosition(0,true);resetDrag()}
+  viewport.addEventListener("pointerup",finishDrag);viewport.addEventListener("pointercancel",event=>{if(event.pointerId===pointerId){setTrackPosition(0,true);resetDrag()}});track.addEventListener("transitionend",event=>{if(event.propertyName==="transform")schedulePagerHeightUpdate()});
+  $("dayViewBtn").addEventListener("click",()=>{mode="day";renderMode()});$("weekViewBtn").addEventListener("click",()=>{mode="week";renderMode()});$("todayBtn").addEventListener("click",()=>{const now=new Date(),key=(now>=validFrom&&jsDay[now.getDay()])?jsDay[now.getDay()]:"mon";mode="day";renderMode();goToIndex(order.indexOf(key),true)});window.addEventListener("resize",()=>{if(mode==="day"){track.classList.remove("animating");adjustPagerHeight();setTrackPosition(0,false);schedulePagerHeightUpdate()}});
   if(window.visualViewport) window.visualViewport.addEventListener("resize",()=>{if(mode==="day")schedulePagerHeightUpdate()});
-
-  renderPager();
-  renderWeek();
-  renderTabs();
-  renderStatus();
-  renderMode();
-
-  // Mantiene l'altezza del pager sincronizzata anche quando Safari ricalcola
-  // font, badge e ritorni a capo dopo il primo paint.
-  const pagerResizeObserver="ResizeObserver" in window ? new ResizeObserver(()=>{
-    if(mode==="day") schedulePagerHeightUpdate();
-  }) : null;
+  renderPager();renderWeek();renderTabs();renderStatus();renderMode();
+  const pagerResizeObserver="ResizeObserver" in window ? new ResizeObserver(()=>{if(mode==="day")schedulePagerHeightUpdate()}) : null;
   if(pagerResizeObserver) track.querySelectorAll(".dayPageInner").forEach(el=>pagerResizeObserver.observe(el));
-  if(document.fonts&&document.fonts.ready){
-    document.fonts.ready.then(()=>{if(mode==="day")schedulePagerHeightUpdate()}).catch(()=>{});
-  }
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(()=>{if(mode==="day")schedulePagerHeightUpdate()}).catch(()=>{})}
   requestAnimationFrame(()=>{adjustPagerHeight();setTrackPosition(0,false);schedulePagerHeightUpdate()});
-
-  if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
+  if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 })();
 </script>
 </body>
